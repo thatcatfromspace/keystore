@@ -1,6 +1,8 @@
 #pragma once
+#include "lru_cache.h"
 #include <chrono>
 #include <functional>
+#include <list>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -28,6 +30,8 @@ class KVStore {
 	mutable std::mutex store_mutex;
 
   public:
+	LRUCache lru_cache;
+
 	KVStore(size_t ttl);
 
 	std::unordered_map<std::string,
@@ -43,7 +47,5 @@ class KVStore {
 
 	std::vector<std::string> utilSplit(std::string& cmd);
 
-	void setTTL(size_t ttl);
-
-    void printAll();
+	void printAll();
 };

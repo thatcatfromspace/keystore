@@ -3,7 +3,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Iinclude -pthread
 
-SRC = src/main.cpp src/kv_store.cpp src/eviction_manager.cpp
+SRC = src/main.cpp src/kv_store.cpp src/eviction_manager.cpp src/lru_cache.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = redis-lite
 

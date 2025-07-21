@@ -7,16 +7,26 @@
 void KVStore::set(const std::string& key, const std::string& value, bool is_persistent) {
 	Metadata metadata;
 	metadata.value = value;
-	metadata.expiry =
-	    is_persistent
-	        ? std::nullopt
-	        : std::make_optional(std::chrono::steady_clock::now() + TTL);
-
+	metadata.expiry = is_persistent ? std::nullopt : std::make_optional(std::chrono::steady_clock::now() + TTL);
 	metadata.access_count = 0;
 	metadata.last_accessed = std::chrono::steady_clock::now();
 
 	std::lock_guard<std::mutex> lock_store(store_mutex);
+
+	// Evict if full
+	if (store.size() >= lru_cache.MAX_SIZE) {
+		// Evict least recently used
+		if (lru_cache.size() > 0) {
+			auto lru_it = lru_cache.item_list.rbegin();
+			if (lru_it != lru_cache.item_list.rend()) {
+				store.erase(lru_it->first);
+				lru_cache.erase(lru_it->first);
+			}
+		}
+	}
+
 	store[key] = metadata;
+	lru_cache.put(key, metadata);
 
 	if (!is_persistent) {
 		std::lock_guard<std::mutex> lock_ttl(ttl_mutex);
@@ -29,13 +39,15 @@ std::string KVStore::get(const std::string& key) {
 	auto it = store.find(key);
 	auto now = std::chrono::steady_clock::now();
 	if (it != store.end()) {
-		/* check if expiry is set and has passed */
+		// check expiry
 		if (it->second.expiry && it->second.expiry.value() <= now) {
 			store.erase(it);
+			this->lru_cache.erase(key);
 			return "(nil)";
 		}
 		it->second.access_count++;
 		it->second.last_accessed = now;
+		lru_cache.put(key, it->second); // update LRU order
 		return it->second.value;
 	}
 	return "(nil)";
@@ -45,7 +57,7 @@ void KVStore::del(const std::string& key) {
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 	if (store.find(key) != store.end()) {
 		store.erase(key);
-
+		lru_cache.erase(key);
 		std::lock_guard<std::mutex> lock_ttl(ttl_mutex);
 		ttl_keys.erase(key);
 	}
@@ -102,6 +114,8 @@ std::vector<std::string> KVStore::utilSplit(std::string& cmd) {
 }
 
 KVStore::KVStore(size_t ttl = 600) {
+	LRUCache lru_cache(32768);
+
 	commands["SET"] = [this](const std::vector<std::string>& args) {
 		if (args.size() == 3) {
 			set(args[1], args[2], false);
@@ -145,21 +159,15 @@ KVStore::KVStore(size_t ttl = 600) {
 	};
 }
 
-void KVStore::setTTL(size_t ttl) {
-	TTL = std::chrono::seconds(ttl);
-}
-
 void KVStore::printAll() {
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 	for (const auto& [key, metadata] : store) {
 		std::cout << "Key: " << key << "\n";
 		std::cout << "  Value: " << metadata.value << "\n";
 		std::cout << "  Access Count: " << metadata.access_count << "\n";
-		std::cout << "  Last Accessed: " << std::chrono::duration_cast<std::chrono::seconds>(
-			metadata.last_accessed.time_since_epoch()).count() << "s since epoch\n";
+		std::cout << "  Last Accessed: " << std::chrono::duration_cast<std::chrono::seconds>(metadata.last_accessed.time_since_epoch()).count() << "s since epoch\n";
 		if (metadata.expiry) {
-			std::cout << "  Expiry: " << std::chrono::duration_cast<std::chrono::seconds>(
-				metadata.expiry.value().time_since_epoch()).count() << "s since epoch\n";
+			std::cout << "  Expiry: " << std::chrono::duration_cast<std::chrono::seconds>(metadata.expiry.value().time_since_epoch()).count() << "s since epoch\n";
 		} else {
 			std::cout << "  Expiry: None\n";
 		}

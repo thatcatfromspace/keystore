@@ -4,8 +4,11 @@
 
 #include "eviction_manager.h"
 #include "kv_store.h"
+#include "spdlog/spdlog.h"
 
 int main() {
+	spdlog::set_level(spdlog::level::debug);
+	
 	auto kv_store = std::make_shared<KVStore>(600);
 	auto evictor = EvictionManager::getInstance(kv_store);
 	evictor->start();

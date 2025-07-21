@@ -1,5 +1,6 @@
 #include "lru_cache.h"
 #include "kv_store.h"
+#include "spdlog/spdlog.h"
 
 LRUCache::LRUCache(size_t max_size)
     : MAX_SIZE(max_size) {
@@ -7,6 +8,7 @@ LRUCache::LRUCache(size_t max_size)
 
 LRUCache::LRUCache(){
     MAX_SIZE = 32768;
+	spdlog::debug("[LRUCache] Cache initalized with max size {}", MAX_SIZE);
 }
 
 void LRUCache::put(const std::string& key, const Metadata& value) {

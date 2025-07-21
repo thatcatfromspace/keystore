@@ -1,4 +1,5 @@
 #include "eviction_manager.h"
+#include "spdlog/spdlog.h"
 #include <iostream>
 
 EvictionManager::EvictionManager() {
@@ -14,7 +15,7 @@ void EvictionManager::start() {
 	if (running)
 		return;
 	running = true;
-	std::cout << "[EvictionManager] Thread started" << std::endl;
+	spdlog::debug("[EvictionManager] Thread started");
 	eviction_worker = std::thread(&EvictionManager::run, this);
 }
 
@@ -25,7 +26,7 @@ void EvictionManager::run() {
 
 			/* exit the loop is the shared pointer no longer exists */
 			if (!store) {
-				std::cerr << "[EvictionManager] No KVStore found. Exiting thread." << std::endl;
+				spdlog::error("[EvictionManager] No KVStore found, exiting thread");
 				break;
 			}
 
@@ -62,7 +63,7 @@ void EvictionManager::run() {
 					if (kv_iter != store->store.end()) {
 						auto now = std::chrono::steady_clock::now();
 						if (now >= kv_iter->second.expiry) {
-							std::cout << "[EvictionManager] Evicted " << key << std::endl;
+							spdlog::debug("[EvictionManager] Evicted {} ", key);
 							store->store.erase(key);
 							store->ttl_keys.erase(key);
 						}
@@ -81,7 +82,7 @@ void EvictionManager::stop() {
 	if (eviction_worker.joinable()) {
 		eviction_worker.join();
 	}
-	std::cout << "[EvictionManager] Thread terminated" << std::endl;
+	spdlog::debug("[EvictionManager] Thread terminated");
 }
 
 size_t EvictionManager::getRandomIndex(size_t max) {

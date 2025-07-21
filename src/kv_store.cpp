@@ -1,4 +1,5 @@
 #include "kv_store.h"
+#include "spdlog/spdlog.h"
 
 #include <fstream>
 #include <iostream>
@@ -13,9 +14,9 @@ void KVStore::set(const std::string& key, const std::string& value, bool is_pers
 
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 
-	// Evict if full
+	/* evict if full */
 	if (store.size() >= lru_cache.MAX_SIZE) {
-		// Evict least recently used
+		/* evict least recently used */
 		if (lru_cache.size() > 0) {
 			auto lru_it = lru_cache.item_list.rbegin();
 			if (lru_it != lru_cache.item_list.rend()) {
@@ -47,7 +48,7 @@ std::string KVStore::get(const std::string& key) {
 		}
 		it->second.access_count++;
 		it->second.last_accessed = now;
-		lru_cache.put(key, it->second); // update LRU order
+		lru_cache.put(key, it->second); /* update LRU order */
 		return it->second.value;
 	}
 	return "(nil)";
@@ -74,7 +75,7 @@ bool KVStore::exists(const std::string& key) {
 void KVStore::runscript(const std::string& filename) {
 	std::ifstream fs(filename, std::ios::in);
 	if (!fs) {
-		std::cerr << "Failed to open script file: " << filename << std::endl;
+		spdlog::error("Failed to open script file: {}", filename);
 		return;
 	}
 

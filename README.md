@@ -7,14 +7,18 @@ A lightweight in-memory key-value database implementation.
 - Simple key-value storage
 - Minimal dependencies
 - Active & passive cleanup with periodic eviction
+- LRU cache to replace inactive records
+- Fully scalable 
 
 ## Installation
 
 Clone the repository:
 
 ```sh
-git clone https://github.com/yourusername/redis-lite.git
+git clone https://github.com/thatcatfromspace/redis-lite.git
 cd redis-lite
+
+make
 ```
 
 ## License

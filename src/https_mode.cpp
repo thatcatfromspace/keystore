@@ -30,24 +30,21 @@ void runHttpsMode(std::shared_ptr<KVStore> kv_store) {
 	});
 
 	CROW_ROUTE(app, "/get").methods(crow::HTTPMethod::GET)([kv_store](const crow::request& req) {
-		auto body = req.get_body_params();
-		auto key = body.get("key");
+		auto key = req.url_params.get("key");
 		return crow::json::wvalue{
 		    {"key", key},
 		    {"value", kv_store->get(key)}};
 	});
 
 	CROW_ROUTE(app, "/delete").methods(crow::HTTPMethod::DELETE)([kv_store](const crow::request& req) {
-		auto body = req.get_body_params();
-		auto key = body.get("key");
+		auto key = req.url_params.get("key");
 		kv_store->del(key);
 		return crow::json::wvalue{
 		    {"key", key}};
 	});
 
 	CROW_ROUTE(app, "/exists").methods(crow::HTTPMethod::GET)([kv_store](const crow::request& req) {
-		auto body = req.get_body_params();
-		auto key = body.get("key");
+		auto key = req.url_params.get("key");
 		return crow::json::wvalue{
 		    {"key", key},
 		    {"exists", kv_store->exists(key)}};

@@ -38,6 +38,8 @@ Optionally, Keystore comes bundled with Docker support. Start the Docker contain
 docker compose up --build -d
 ```
 
+The HTTPS server runs on port `3000`.
+
 ## Example: Storing and Retrieving Data
 
 - **Set a value:**

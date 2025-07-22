@@ -1,5 +1,8 @@
-#include "cli_mode.h"
+#include "CLI/CLI.hpp"
 #include "spdlog/spdlog.h"
+
+#include "cli_mode.h"
+
 #include <atomic>
 #include <iostream>
 #include <sstream>
@@ -58,4 +61,10 @@ void runCliMode(std::shared_ptr<KVStore> kv_store) {
 	}
 
 	spdlog::info("[Keystore] CLI mode shutting down gracefully");
+}
+
+void runCliModeNew(std::shared_ptr<KVStore> kv_store, int argc, char* argv[]) {
+    CLI::App cli("Blazing fast key-value store", "Keystore");
+    std::string command;
+    // cli.add_option("-");
 }

@@ -12,7 +12,7 @@ bool stringToBool(const std::string& str) {
 
 void runHttpsMode(std::shared_ptr<KVStore> kv_store) {
 	crow::SimpleApp app;
-	app.loglevel(crow::LogLevel::Info);
+	app.loglevel(crow::LogLevel::Warning);
 
 	CROW_ROUTE(app, "/")([]() {
 		return "Stellis vagamur";

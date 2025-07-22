@@ -1,0 +1,10 @@
+services:
+  keystore:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/data
+    command: ["./keystore", "https"]

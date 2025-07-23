@@ -1,4 +1,4 @@
-#include "https_mode.h"
+#include "http_mode.h"
 #include "crow.h"
 #include "spdlog/spdlog.h"
 #include <chrono>
@@ -11,13 +11,13 @@ bool stringToBool(const std::string& str) {
 	return b;
 }
 
-HttpsMode::HttpsMode(std::shared_ptr<KvStore> kv_store)
+HttpMode::HttpMode(std::shared_ptr<KvStore> kv_store)
     : kv_store_(std::move(kv_store)), app_(nullptr) {
 }
 
-void HttpsMode::run() {
+void HttpMode::run() {
 	status_ = ModeStatus::Running;
-	spdlog::info("[HttpsMode] Running in HTTPS mode");
+	spdlog::info("[HttpMode] Starting HTTP server");
 	app_ = std::make_unique<crow::SimpleApp>();
 	// Launch server thread
 	worker_threads_.emplace_back([this]() { this->serverLoop(); });
@@ -31,8 +31,8 @@ void HttpsMode::run() {
 	status_ = ModeStatus::Stopping;
 }
 
-void HttpsMode::cleanup() {
-	spdlog::info("[HttpsMode] Cleaning up HTTPS mode");
+void HttpMode::cleanup() {
+	spdlog::info("[HttpMode] Cleaning up HTTP server");
 	terminate_ = true;
 	if (app_)
 		app_->stop();
@@ -44,18 +44,18 @@ void HttpsMode::cleanup() {
 	status_ = ModeStatus::Stopped;
 }
 
-void HttpsMode::handleSignal(int signal) {
-	spdlog::info("[HttpsMode] Signal {} received, shutting down...", signal);
+void HttpMode::handleSignal(int signal) {
+	spdlog::info("[HttpMode] Signal {} received, shutting down...", signal);
 	terminate_ = true;
 	if (app_)
 		app_->stop();
 }
 
-ModeStatus HttpsMode::getStatus() const {
+ModeStatus HttpMode::getStatus() const {
 	return status_;
 }
 
-void HttpsMode::serverLoop() {
+void HttpMode::serverLoop() {
 	auto& app = *app_;
 	app.loglevel(crow::LogLevel::Warning);
 
@@ -95,8 +95,8 @@ void HttpsMode::serverLoop() {
 		    {"exists", kv_store_->exists(key)}};
 	});
 
-	spdlog::info("[HttpsMode] Starting HTTPS server on port 3000");
+	spdlog::info("[HttpMode] Starting HTTPS server on port 3000");
 	app.port(3000).multithreaded().run();
-	spdlog::info("[HttpsMode] Server shutting down gracefully...");
+	spdlog::info("[HttpMode] Server shutting down gracefully...");
 	terminate_ = true;
 }

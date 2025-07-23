@@ -7,9 +7,9 @@
 #include <thread>
 #include <vector>
 
-class HttpsMode : public Mode {
+class HttpMode : public Mode {
   public:
-	explicit HttpsMode(std::shared_ptr<KvStore> kv_store);
+	explicit HttpMode(std::shared_ptr<KvStore> kv_store);
 	void run() override;
 	void cleanup() override;
 	void handleSignal(int signal) override;

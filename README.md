@@ -10,6 +10,15 @@ KeyStore is a lightweight, blazing-fast in-memory database designed for develope
 - **Self-cleaning**: Automatically evicts old or unused data to keep memory usage in check.
 - **Health checks**: Each mode can report its status for monitoring and system integration.
 
+### Dependecies
+
+- **C++17**: KeyStore is built with modern C++ features for performance and safety.
+- **Crow**: A C++ micro web framework for the HTTPS server mode.
+- **spdlog**: For logging and debugging.
+- **make**: For building the project.
+
+If you do not want the hassle of building from source, you can download pre-built binaries from the [releases page](https://github.com/thatcatfromspace/keystore/releases) if you are on Linux, or use the Docker image for other platforms.
+
 ## How to Use
 
 ### 1. Command Line Mode (CLI)
@@ -24,12 +33,12 @@ hello
 keystore> del mykey
 ```
 
-### 2. HTTPS Server Mode
+### 2. HTTP Server Mode
 
 Run KeyStore as a server and connect from your own apps or tools. Perfect for integrating with other services or building distributed systems.
 
 ```sh
-./keystore https
+./keystore http
 # Now connect from your client or use curl/postman to interact with the API
 ```
 
@@ -39,7 +48,15 @@ Optionally, Keystore comes bundled with Docker support. Start the Docker contain
 docker compose up --build -d
 ```
 
-The HTTPS server runs on port `3000`.
+The HTTP server runs on port `3000`.
+
+**NOTE**: For POST methods, the endpoint only accepts payload as `www-form-urlencoded`. For example, to set a value:
+
+```sh
+curl -X POST http://localhost:3000/set -d "key=username&value=alice"
+```
+
+This is due to an internal limitation with Crow.
 
 ### 3. TCP Server Mode
 

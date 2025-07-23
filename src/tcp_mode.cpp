@@ -21,7 +21,7 @@ void TcpMode::run() {
 }
 
 void TcpMode::cleanup() {
-	spdlog::info("[TcpMode] Cleaning up TCP mode");
+	spdlog::info("[TcpMode] Cleaning up TCP server");
 	terminate_ = true;
 	for (auto& t : worker_threads_) {
 		if (t.joinable())

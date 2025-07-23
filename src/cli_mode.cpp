@@ -55,7 +55,7 @@ void CliMode::run() {
 }
 
 void CliMode::cleanup() {
-	spdlog::info("[CliMode] Cleaning up CLI mode");
+	spdlog::info("[CliMode] Cleaning up...");
 	status_ = ModeStatus::Stopped;
 }
 

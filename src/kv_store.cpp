@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-void KVStore::set(const std::string& key, const std::string& value, bool is_persistent) {
+void KvStore::set(const std::string& key, const std::string& value, bool is_persistent) {
 	Metadata metadata;
 	metadata.value = value;
 	metadata.expiry = is_persistent ? std::nullopt : std::make_optional(std::chrono::steady_clock::now() + TTL);
@@ -35,7 +35,7 @@ void KVStore::set(const std::string& key, const std::string& value, bool is_pers
 	}
 }
 
-std::string KVStore::get(const std::string& key) {
+std::string KvStore::get(const std::string& key) {
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 	auto it = store.find(key);
 	auto now = std::chrono::steady_clock::now();
@@ -54,7 +54,7 @@ std::string KVStore::get(const std::string& key) {
 	return "(nil)";
 }
 
-void KVStore::del(const std::string& key) {
+void KvStore::del(const std::string& key) {
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 	if (store.find(key) != store.end()) {
 		store.erase(key);
@@ -64,7 +64,7 @@ void KVStore::del(const std::string& key) {
 	}
 }
 
-bool KVStore::exists(const std::string& key) {
+bool KvStore::exists(const std::string& key) {
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 	if (store.find(key) != store.end()) {
 		return true;
@@ -72,10 +72,10 @@ bool KVStore::exists(const std::string& key) {
 	return false;
 }
 
-void KVStore::runscript(const std::string& filename) {
+void KvStore::runscript(const std::string& filename) {
 	std::ifstream fs(filename, std::ios::in);
 	if (!fs) {
-		spdlog::error("Failed to open script file: {}", filename);
+		spdlog::error("[Keystore] Failed to open script file: {}", filename);
 		return;
 	}
 
@@ -91,7 +91,7 @@ void KVStore::runscript(const std::string& filename) {
 	}
 }
 
-std::vector<std::string> KVStore::utilSplit(std::string& cmd) {
+std::vector<std::string> KvStore::utilSplit(std::string& cmd) {
 	std::stringstream ss(cmd);
 	std::vector<std::string> cmd_split;
 	std::string temp;
@@ -114,7 +114,7 @@ std::vector<std::string> KVStore::utilSplit(std::string& cmd) {
 	return cmd_split;
 }
 
-KVStore::KVStore(size_t ttl = 600) {
+KvStore::KvStore(size_t ttl = 600) {
 	LRUCache lru_cache(32768);
 
 	commands["SET"] = [this](const std::vector<std::string>& args) {
@@ -160,7 +160,8 @@ KVStore::KVStore(size_t ttl = 600) {
 	};
 }
 
-void KVStore::printAll() {
+/* striclty for debugging purposes only, not advisable to run in production */
+void KvStore::printAll() {
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 	for (const auto& [key, metadata] : store) {
 		std::cout << "Key: " << key << "\n";

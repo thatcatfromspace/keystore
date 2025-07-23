@@ -18,7 +18,7 @@ struct Metadata {
 	// TODO: add type
 };
 
-class KVStore {
+class KvStore {
 	friend class EvictionManager;
 
   private:
@@ -32,7 +32,7 @@ class KVStore {
   public:
 	LRUCache lru_cache;
 
-	KVStore(size_t ttl);
+	KvStore(size_t ttl);
 
 	std::unordered_map<std::string,
 	                   std::function<void(const std::vector<std::string>&)>>

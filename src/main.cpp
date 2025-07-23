@@ -6,52 +6,41 @@
 
 #include "cli_mode.h"
 #include "eviction_manager.h"
-#include "kv_store.h"
-#include "spdlog/spdlog.h"
 #include "https_mode.h"
-#include "utils.h"
+#include "kv_store.h"
+#include "mode.h"
+#include "tcp_mode.h"
 
-std::atomic<bool> terminate(false);
+std::unique_ptr<Mode> mode;
 
-auto kv_store = std::make_shared<KVStore>(600);
-auto evictor = EvictionManager::getInstance(kv_store);
-
-void sigintSignalHandler(int signal) {
-	if (signal == SIGINT) {
-		spdlog::info("Ctrl+C received, initiating graceful shutdown...");
-		evictor->stop();
-		terminate = true;
-		exit(128 + signal); /* https://unix.stackexchange.com/questions/99112/default-exit-code-when-process-is-terminated */
-	}
+void globalSignalHandler(int signal) {
+	if (mode)
+		mode->handleSignal(signal);
 }
 
 int main(int argc, char* argv[]) {
-	spdlog::set_level(spdlog::level::debug);
-
-	signal(SIGINT, sigintSignalHandler);
-
 	if (argc != 2) {
-		printUsage(argv[0]);
+		std::cout << "Usage: " << argv[0] << " <mode>\nModes: cli | tcp" << std::endl;
 		return 1;
 	}
-
-	std::string mode = argv[1];
-
-	if (mode != "cli" && mode != "https" && mode != "tcp") {
-		std::cout << "Error: Invalid mode '" << mode << "'" << std::endl;
-		printUsage(argv[0]);
+	std::string mode_arg = argv[1];
+	auto kv_store = std::make_shared<KvStore>(600);
+	EvictionManager* evictor = EvictionManager::getInstance(kv_store);
+	if (mode_arg == "cli") {
+		mode = std::make_unique<CliMode>(kv_store);
+	} else if (mode_arg == "tcp") {
+		mode = std::make_unique<TcpMode>(kv_store);
+	} else if (mode_arg == "https") {
+		mode = std::make_unique<HttpsMode>(kv_store);
+	} 
+	else {
+		std::cout << "Invalid mode: " << mode_arg << std::endl;
 		return 1;
 	}
-
+	std::signal(SIGINT, globalSignalHandler);
 	evictor->start();
-
-	if (mode == "cli") {
-		runCliMode(kv_store);
-	} else if (mode == "https") {
-		runHttpsMode(kv_store);
-	}
-
+	mode->run();
+	mode->cleanup();
 	evictor->stop();
-
 	return 0;
 }

@@ -9,7 +9,7 @@ class EvictionManager {
   private:
 	std::thread eviction_worker;
 	std::atomic<bool> running;
-	std::weak_ptr<KVStore> kv_store_ptr;
+	std::weak_ptr<KvStore> kv_store_ptr;
 	const double expiry_threshold = 0.25;
 	const int sample_size = 20;
 
@@ -19,7 +19,7 @@ class EvictionManager {
 	EvictionManager& operator=(const EvictionManager&) = delete;
 
   public:
-	static EvictionManager* getInstance(std::shared_ptr<KVStore> kv_store);
+	static EvictionManager* getInstance(std::shared_ptr<KvStore> kv_store);
 
 	/*  The idea is to create a per-thread Mersenne twister with device based randomness (if available) */
 	static size_t getRandomIndex(size_t max);

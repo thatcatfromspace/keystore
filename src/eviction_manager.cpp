@@ -5,7 +5,7 @@
 EvictionManager::EvictionManager() {
 }
 
-EvictionManager* EvictionManager::getInstance(std::shared_ptr<KVStore> kv_store) {
+EvictionManager* EvictionManager::getInstance(std::shared_ptr<KvStore> kv_store) {
 	static EvictionManager instance;
 	instance.kv_store_ptr = kv_store;
 	return &instance;

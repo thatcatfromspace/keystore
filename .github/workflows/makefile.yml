@@ -1,0 +1,23 @@
+name: Keystore CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: apt-get update && apt-get install -y build-essential g++ make libspdlog-dev git wget libasio-dev
+
+    - name: Install Crow
+      run: wget https://github.com/CrowCpp/Crow/releases/download/v1.2.1.2/Crow-1.2.1-Linux.deb && dpkg -i Crow-1.2.1-Linux.deb
+
+    - name: Build Keystore
+      run: make

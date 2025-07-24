@@ -1,0 +1,33 @@
+name: Keystore CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Wait for dpkg lock to be released
+      run: |
+        for i in {1..10}; do
+          sudo lsof /var/lib/dpkg/lock-frontend && echo "dpkg is locked, retrying..." && sleep 5 || break
+        done
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential g++ make libspdlog-dev git wget libasio-dev
+
+    - name: Install Crow
+      run: |
+        wget https://github.com/CrowCpp/Crow/releases/download/v1.2.1.2/Crow-1.2.1-Linux.deb
+        sudo dpkg -i Crow-1.2.1-Linux.deb
+
+    - name: Build Keystore
+      run: make

@@ -11,6 +11,9 @@ LRUCache::LRUCache(){
 	spdlog::debug("[LRUCache] Cache initalized with max size {}", MAX_SIZE);
 }
 
+/// @brief Add an entry to the LRU cache. If item already exists, push it to the front of the cache.
+/// @param key Key to be added
+/// @param value Respective value 
 void LRUCache::put(const std::string& key, const Metadata& value) {
 	auto it = item_map.find(key);
 	if (it != item_map.end()) {

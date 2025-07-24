@@ -1,15 +1,21 @@
-FROM ubuntu:latest
 
-WORKDIR /app
+FROM archlinux
 
-RUN apt-get update && apt-get install -y build-essential g++ make libspdlog-dev git wget libasio-dev
+RUN pacman -Syu --noconfirm \
+    && pacman -S --noconfirm git base-devel \
+    && useradd -m builder \
+    && echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
+    && su builder -c "git clone https://aur.archlinux.org/yay.git /tmp/yay" \
+    && su builder -c "cd /tmp/yay && makepkg -si --noconfirm" \
+    && rm -rf /tmp/yay \
+    && pacman -Scc --noconfirm
 
-RUN wget https://github.com/CrowCpp/Crow/releases/download/v1.2.1.2/Crow-1.2.1-Linux.deb
+RUN su builder -c "yay -S --noconfirm crow fmt spdlog asio"
 
-RUN dpkg -i Crow-1.2.1-Linux.deb
+WORKDIR /home/builder
 
 COPY . .
 
-RUN make
+RUN su builder -c "make clean && make"
 
-CMD ["./keystore", "https"]
+CMD ["./keystore", "cli"]

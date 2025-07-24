@@ -17,7 +17,6 @@ HttpMode::HttpMode(std::shared_ptr<KvStore> kv_store)
 
 void HttpMode::run() {
 	status_ = ModeStatus::Running;
-	spdlog::info("[HttpMode] Starting HTTP server");
 	app_ = std::make_unique<crow::SimpleApp>();
 	// Launch server thread
 	worker_threads_.emplace_back([this]() { this->serverLoop(); });
@@ -95,7 +94,7 @@ void HttpMode::serverLoop() {
 		    {"exists", kv_store_->exists(key)}};
 	});
 
-	spdlog::info("[HttpMode] Starting HTTPS server on port 3000");
+	spdlog::info("[HttpMode] Starting HTTP server on port 3000");
 	app.port(3000).multithreaded().run();
 	spdlog::info("[HttpMode] Server shutting down gracefully...");
 	terminate_ = true;

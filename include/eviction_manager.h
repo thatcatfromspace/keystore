@@ -5,6 +5,7 @@
 #include <random>
 #include <thread>
 
+/// @brief A singleton eviction manager that runs as a background thread.
 class EvictionManager {
   private:
 	std::thread eviction_worker;

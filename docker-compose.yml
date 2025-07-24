@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    environment:
+      - KEYSTORE_TTL=600
     volumes:
       - ./data:/data
-    command: ["./keystore", "https"]
+    command: ["./keystore", "http"]

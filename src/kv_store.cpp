@@ -144,7 +144,7 @@ KvStore::KvStore(size_t ttl = 600) {
 
 	commands["EXISTS"] = [this](const std::vector<std::string>& args) {
 		if (args.size() == 2) {
-			exists(args[1]);
+			std::cout << (exists(args[1]) ? "true" : "false") << std::endl;
 		}
 	};
 	commands["RUNSCRIPT"] = [this](const std::vector<std::string>& args) {
@@ -160,7 +160,7 @@ KvStore::KvStore(size_t ttl = 600) {
 	};
 }
 
-/* striclty for debugging purposes only, not advisable to run in production */
+// strictly for debugging purposes only, not advisable to run in production
 void KvStore::printAll() {
 	std::lock_guard<std::mutex> lock_store(store_mutex);
 	for (const auto& [key, metadata] : store) {

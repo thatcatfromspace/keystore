@@ -1,6 +1,9 @@
 #pragma once
 #include "lru_cache.h"
+#include "dotenv.h"
+
 #include <chrono>
+#include <cstdlib>
 #include <functional>
 #include <list>
 #include <mutex>
@@ -24,7 +27,7 @@ class KvStore {
   private:
 	std::unordered_map<std::string, Metadata> store;
 	std::unordered_set<std::string> ttl_keys;
-	std::chrono::seconds TTL = std::chrono::seconds(10);
+	std::chrono::seconds TTL = std::chrono::seconds(stoi(std::string(dotenv::getenv("KEYSTORE_TTL", "600"))));
 
 	mutable std::mutex ttl_mutex;
 	mutable std::mutex store_mutex;

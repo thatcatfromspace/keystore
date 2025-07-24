@@ -7,6 +7,8 @@
 // Forward declaration for Metadata
 struct Metadata;
 
+/// @brief Minimal LRU cache. Maintains a linked list internally to keep track of LRU items
+/// and uses a map for `O(1)` time search and deletion.
 class LRUCache {
   public:
 	explicit LRUCache(size_t max_size);

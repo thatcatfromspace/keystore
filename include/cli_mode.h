@@ -4,6 +4,7 @@
 #include <atomic>
 #include <memory>
 
+/// @brief Handle running and clean up of CLI mode.
 class CliMode: public Mode {
   public:
 	explicit CliMode(std::shared_ptr<KvStore> kv_store);

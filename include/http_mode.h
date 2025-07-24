@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 
+/// @brief Handle running and clean up of the HTTP server.
 class HttpMode : public Mode {
   public:
 	explicit HttpMode(std::shared_ptr<KvStore> kv_store);

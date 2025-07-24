@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include "dotenv.h"
+
 #include "cli_mode.h"
 #include "eviction_manager.h"
 #include "http_mode.h"
@@ -19,6 +21,8 @@ void globalSignalHandler(int signal) {
 }
 
 int main(int argc, char* argv[]) {
+	dotenv::init();
+
 	if (argc != 2) {
 		std::cout << "Usage: " << argv[0] << " <mode>\nModes: cli | tcp | http" << std::endl;
 		return 1;
@@ -32,8 +36,7 @@ int main(int argc, char* argv[]) {
 		mode = std::make_unique<TcpMode>(kv_store);
 	} else if (mode_arg == "http") {
 		mode = std::make_unique<HttpMode>(kv_store);
-	} 
-	else {
+	} else {
 		std::cout << "Invalid mode: " << mode_arg << std::endl;
 		return 1;
 	}

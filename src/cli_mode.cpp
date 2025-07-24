@@ -1,4 +1,3 @@
-#include "CLI/CLI.hpp"
 #include "spdlog/spdlog.h"
 
 #include "cli_mode.h"
@@ -62,7 +61,7 @@ void CliMode::cleanup() {
 void CliMode::handleSignal(int signal) {
 	spdlog::info("[CliMode] Signal {} received, shutting down...", signal);
 	terminate_ = true;
-	fclose(stdin); // Unblock std::getline
+	fclose(stdin); /* stop reading and close the input */
 }
 
 ModeStatus CliMode::getStatus() const {

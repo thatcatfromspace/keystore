@@ -6,6 +6,7 @@
 #include <thread>
 #include <vector>
 
+/// @brief Handle running and clean up of the TCP server.
 class TcpMode : public Mode {
   public:
 	explicit TcpMode(std::shared_ptr<KvStore> kv_store);

@@ -19,12 +19,14 @@ void EvictionManager::start() {
 	eviction_worker = std::thread(&EvictionManager::run, this);
 }
 
+/// @brief Start the eviction thread. Samples the database randomly for TTL expiries and if the
+/// count of sampled expiries is greater than a threshold, run a cleanup operation removing expired
+/// entries.
 void EvictionManager::run() {
 	while (running) {
 		{
 			auto store = kv_store_ptr.lock();
-
-			/* exit the loop is the shared pointer no longer exists */
+			// exit the loop if the shared pointer no longer exists
 			if (!store) {
 				spdlog::error("[EvictionManager] No KVStore found, exiting thread");
 				break;
@@ -34,13 +36,13 @@ void EvictionManager::run() {
 			std::lock_guard<std::mutex> lock_ttl(store->ttl_mutex);
 
 			if (store->ttl_keys.empty()) {
-				/* nothing to sample here */
+				// nothing to sample here
 			} else {
-				/* sample upto 5 keys for expiry check */
+				// sample up to 5 keys for expiry check
 				const int SAMPLE_SIZE = 5;
 				std::vector<std::string> keys;
 
-				/* copy keys into a vector to allow random access */
+				// copy keys into a vector to allow random access
 				for (const auto& key : store->ttl_keys) {
 					keys.push_back(key);
 				}
@@ -50,7 +52,7 @@ void EvictionManager::run() {
 
 				for (int i = 0; i < num_samples; ++i) {
 					size_t idx;
-					/*  retry sampling until we get a new one */
+					// retry sampling until we get a new one
 					do {
 						idx = getRandomIndex(keys.size());
 					} while (sampled.count(keys[idx]));
@@ -72,7 +74,7 @@ void EvictionManager::run() {
 			}
 		}
 
-		/* sleep until next cleanup cycle */
+		// sleep until next cleanup cycle
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 }

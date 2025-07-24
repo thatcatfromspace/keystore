@@ -5,7 +5,7 @@ KeyStore is a lightweight, blazing-fast in-memory database designed for develope
 ## Why KeyStore?
 
 - **Zero hassle**: No setup, no config files, just run and store your data.
-- **Flexible**: Use it from the command line, as a networked HTTPS or TCP server, or even in Docker.
+- **Flexible**: Use it from the command line, as a networked HTTP or TCP server, or even in Docker.
 - **Efficient**: Built with performance and minimalism in mind.
 - **Self-cleaning**: Automatically evicts old or unused data to keep memory usage in check.
 - **Health checks**: Each mode can report its status for monitoring and system integration.
@@ -13,7 +13,7 @@ KeyStore is a lightweight, blazing-fast in-memory database designed for develope
 ### Dependecies
 
 - **C++17**: KeyStore is built with modern C++ features for performance and safety.
-- **Crow**: A C++ micro web framework for the HTTPS server mode.
+- **Crow**: A C++ micro web framework for the HTTP server mode.
 - **spdlog**: For logging and debugging.
 - **make**: For building the project.
 
@@ -71,15 +71,15 @@ For lightweight, raw-socket access, run KeyStore in TCP mode. This is ideal for 
 
 - **Set a value:**
   - CLI: `set username alice`
-  - HTTPS: `POST /set` with `{ "key": "username", "value": "alice" }`
+  - HTTP: `POST /set` with `{ "key": "username", "value": "alice" }`
   - TCP: Send a raw command like `set username alice\n`
 - **Get a value:**
   - CLI: `get username`
-  - HTTPS: `GET /get?key=username`
+  - HTTP: `GET /get?key=username`
   - TCP: Send `get username\n`
 - **Delete a value:**
   - CLI: `del username`
-  - HTTPS: `DELETE /delete?key=username`
+  - HTTP: `DELETE /delete?key=username`
   - TCP: Send `delete username\n`
 
 ## What's New
